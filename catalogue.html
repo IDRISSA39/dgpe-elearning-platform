@@ -1,111 +1,126 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Catalogue – DGPE</title>
-  <link rel="stylesheet" href="./style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Catalogue – DGPE</title>
+<link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
 
 <!-- ================= NAVBAR ================= -->
-<header class="navbar">
-  <div class="wrap">
-    <div class="logo-group">
-      <img src="asset/img/dgpe-logo.png" class="logo" alt="DGPE">
-      <span class="brand">e-Learning</span>
-    </div>
+<div class="navbar"><div class="wrap">
 
-    <nav class="nav">
-      <a href="index.html">Accueil</a>
-      <a href="catalogue.html" class="active">Catalogue</a>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="login.html" class="pill">Déconnexion</a>
-    </nav>
+  <div class="logo-group">
+    <div class="logo-wrapper">
+      <img src="./assets/img/dgpe-logo.png" class="logo" alt="DGPE">
+    </div>
+    <span class="brand">e-Learning</span>
   </div>
-</header>
+
+  <nav class="nav">
+    <a href="index.html">Accueil</a>
+    <a href="catalogue.html" class="active">Catalogue</a>
+    <a href="module.html">Module</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="administration.html">Administration</a>
+    <a href="login.html" class="pill">Déconnexion</a>
+  </nav>
+
+  <button class="burger" aria-label="Menu"><span></span></button>
+</div></div>
 
 <!-- ================= CONTENU ================= -->
-<main class="page">
-  <section class="panel">
+<div class="page">
+
+  <div class="panel">
     <h2>Catalogue des formations</h2>
 
-    <!-- Barre de recherche -->
-    <input
-      id="searchInput"
-      class="input"
-      type="text"
-      placeholder="Rechercher un module…"
-    >
-    <button class="btn" id="btnSearch">Rechercher</button>
-  </section>
+    <input id="searchInput" class="input" placeholder="Rechercher un module…">
 
-  <!-- ================= RÉSULTATS ================= -->
-  <section class="panel" style="margin-top:16px;">
-    <h3>Résultats</h3>
-    <div id="modulesGrid" class="modules-grid">
-      <!-- Modules générés par le script -->
+    <select id="filterDomaine" class="input">
+      <option value="">Tous domaines</option>
+      <option>Gouvernance</option>
+      <option>Management</option>
+      <option>Finance Publique</option>
+      <option>Performance</option>
+      <option>Digital</option>
+      <option>Innovation</option>
+      <option>Leadership</option>
+      <option>Communication</option>
+      <option>RSE</option>
+    </select>
+
+    <a class="btn" onclick="chargerModules()">Rechercher</a>
+
+    <!-- ===== RÉSULTATS ===== -->
+    <div class="panel" style="margin-top:16px;">
+      <h3>Résultats</h3>
+      <div class="modules-grid" id="modulesGrid"></div>
     </div>
-  </section>
-</main>
+
+  </div>
+
+</div>
 
 <!-- ================= FOOTER ================= -->
 <footer class="footer">
   © 2025 DGPE – Direction Générale du Portefeuille de l’État
 </footer>
 
-<!-- ================= SCRIPT ================= -->
+<!-- ✅ SUPABASE OFFICIEL -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-  /* ================= DONNÉES CATALOGUE ================= */
-  const modules = [
-    { id: 1, titre: "Gouvernance stratégique et analyse financière", duree: "4 jours", domaine: "Gouvernance" },
-    { id: 2, titre: "Pilotage stratégique", duree: "4 jours", domaine: "Gouvernance" },
-    { id: 3, titre: "Audit & conformité", duree: "3 jours", domaine: "Gouvernance" },
-    { id: 4, titre: "Performance & KPI", duree: "2 jours", domaine: "Performance" },
-    { id: 5, titre: "Transformation digitale", duree: "3 jours", domaine: "Digital" },
-    { id: 6, titre: "IA & Décision", duree: "2 jours", domaine: "Digital" },
-    { id: 7, titre: "Leadership", duree: "2 jours", domaine: "Leadership" },
-    { id: 8, titre: "Communication de crise", duree: "2 jours", domaine: "Communication" },
-    { id: 9, titre: "RSE : Concevoir et piloter une stratégie durable", duree: "3 jours", domaine: "RSE" },
-    { id: 10, titre: "Manager le changement durable", duree: "2 jours", domaine: "Management" }
-  ];
+const supabaseUrl = "https://yshmhrsartwjctbpevup.supabase.co";
+const supabaseKey = sb_publishable_Pf0iAehofCt4_VpHddUcWQ_rdxhfeEh;
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-  /* ================= AFFICHAGE DES MODULES ================= */
-  function afficherModules() {
-    const grid = document.getElementById("modulesGrid");
-    const search = document.getElementById("searchInput").value.toLowerCase();
+// ✅ CHARGEMENT DES MODULES
+async function chargerModules() {
+  const grid = document.getElementById("modulesGrid");
+  const recherche = document.getElementById("searchInput").value.toLowerCase();
+  const domaine = document.getElementById("filterDomaine").value;
 
-    grid.innerHTML = ""; // Vider les résultats précédents
+  grid.innerHTML = "Chargement...";
 
-    // Filtrage des modules par titre
-    const filtres = modules.filter(m =>
-      m.titre.toLowerCase().includes(search)
-    );
+  let query = supabaseClient.from("modules").select("*").order("id");
 
-    if (filtres.length === 0) {
-      grid.innerHTML = `<p class="muted">Aucun module trouvé</p>`;
-      return;
-    }
-
-    // Affichage des modules
-    filtres.forEach(m => {
-      grid.innerHTML += `
-        <div class="card">
-          <h3><a href="module.html?id=${m.id}">${m.titre}</a></h3>
-          <p class="muted">${m.domaine} • ${m.duree}</p>
-        </div>
-      `;
-    });
+  if (domaine !== "") {
+    query = query.eq("domaine", domaine);
   }
 
-  /* ================= EVENTS ================= */
-  document.getElementById("btnSearch").addEventListener("click", afficherModules);
-  document.getElementById("searchInput").addEventListener("input", afficherModules);
+  const { data, error } = await query;
 
-  /* ================= AUTO LOAD ================= */
-  afficherModules(); // Chargement initial des modules
+  if (error) {
+    grid.innerHTML = "❌ Erreur chargement modules";
+    console.error(error);
+    return;
+  }
+
+  const modulesFiltres = data.filter(m =>
+    m.titre.toLowerCase().includes(recherche)
+  );
+
+  grid.innerHTML = "";
+
+  modulesFiltres.forEach(m => {
+    grid.innerHTML += `
+      <a href="module.html?id=${m.id}" class="card">
+        <h3>${m.titre}</h3>
+        <p style="color:#a7b1bd">${m.domaine} • ${m.duree}</p>
+        <p>${m.resume}</p>
+      </a>
+    `;
+  });
+}
+
+// ✅ CHARGEMENT AUTO AU DÉMARRAGE
+chargerModules();
 </script>
+
+<script src="./assets/js/app.js"></script>
 
 </body>
 </html>
