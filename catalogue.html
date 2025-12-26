@@ -13,7 +13,8 @@
 <header class="navbar">
   <div class="wrap">
     <div class="logo-group">
-<img src="asset/img/dgpe-logo.png" class="logo" alt="DGPE">
+      <!-- Vérifie que le chemin de l'image est correct -->
+      <img src="assets/img/dgpe-logo.png" class="logo" alt="DGPE">
       <span class="brand">e-Learning</span>
     </div>
 
@@ -81,7 +82,7 @@ function afficherModules() {
   );
 
   if (filtres.length === 0) {
-    grid.innerHTML = `<p class="muted">Aucun module trouvé</p>`;
+    grid.innerHTML = `<p class="muted">Aucun module trouvé, veuillez essayer avec un autre mot-clé.</p>`;
     return;
   }
 
