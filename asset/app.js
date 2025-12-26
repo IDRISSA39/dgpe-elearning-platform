@@ -2,7 +2,7 @@
    ✅ CONNEXION À SUPABASE
 ===================================================== */
 const supabaseUrl = "https://yshmhrsartwjctbpevup.supabase.co";
-const supabaseKey = "https://yshmhrsartwjctbpevup.supabase.co";
+const supabaseKey = "sb_publishable_Pf0iAehofCt4_VpHddUcWQ_rdxhfeEh";
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 /* =====================================================
