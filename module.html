@@ -1,112 +1,131 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Module – DGPE</title>
-<link rel="stylesheet" href="./style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Module – DGPE</title>
+    <link rel="stylesheet" href="./style.css">
 
-<!-- 🔐 AUTH GUARD -->
-<script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    <!-- 🔐 AUTH GUARD -->
+    <script type="module">
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-const supabase = createClient(
-  "https://yshmhrsartwjctbpevup.supabase.co",
-  "sb_publishable_Pf0iAehofCt4_VpHddUcWQ_rdxhfeEh"
-);
+        const supabase = createClient(
+            "https://yshmhrsartwjctbpevup.supabase.co",
+            "sb_publishable_Pf0iAehofCt4_VpHddUcWQ_rdxhfeEh"
+        );
 
-const { data: { session } } = await supabase.auth.getSession();
-if (!session) {
-  window.location.href = "login.html";
-}
-</script>
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            window.location.href = "login.html";
+        }
+    </script>
 </head>
 
 <body>
 
 <!-- ================= NAVBAR ================= -->
 <header class="navbar">
-  <div class="wrap">
-    <div class="logo-group">
-      <img src="./assets/img/dgpe-logo.png" class="logo" alt="DGPE">
-      <span class="brand">e-Learning</span>
+    <div class="wrap">
+        <div class="logo-group">
+            <img src="./assets/img/dgpe-logo.png" class="logo" alt="DGPE">
+            <span class="brand">e-Learning</span>
+        </div>
+        <nav class="nav">
+            <a href="index.html">Accueil</a>
+            <a href="catalogue.html">Catalogue</a>
+            <a href="dashboard.html">Dashboard</a>
+            <button id="logoutBtn" class="pill">Déconnexion</button>
+        </nav>
+        <button class="burger" aria-label="Menu"><span></span></button>
     </div>
-
-    <nav class="nav">
-      <a href="index.html">Accueil</a>
-      <a href="catalogue.html">Catalogue</a>
-      <a href="dashboard.html">Dashboard</a>
-      <button id="logoutBtn" class="pill">Déconnexion</button>
-    </nav>
-
-    <button class="burger" aria-label="Menu"><span></span></button>
-  </div>
 </header>
 
 <!-- ================= CONTENU ================= -->
 <main class="page">
-  <section class="panel" id="modulePanel">
-    <p class="muted">Chargement du module…</p>
-  </section>
+
+    <section class="panel" id="modulePanel">
+        <p class="muted">Chargement du module…</p>
+    </section>
+
 </main>
 
 <!-- ================= FOOTER ================= -->
 <footer class="footer">
-  © 2025 DGPE – Direction Générale du Portefeuille de l’État
+    © 2025 DGPE – Direction Générale du Portefeuille de l’État
 </footer>
 
 <!-- ================= SUPABASE ================= -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-// Initialisation de Supabase
-const supabaseClient = supabase.createClient(
-  "https://yshmhrsartwjctbpevup.supabase.co",
-  "sb_publishable_Pf0iAehofCt4_VpHddUcWQ_rdxhfeEh"
-);
+    const supabaseClient = supabase.createClient(
+        "https://yshmhrsartwjctbpevup.supabase.co",
+        "sb_publishable_Pf0iAehofCt4_VpHddUcWQ_rdxhfeEh"
+    );
 
-// Récupération de l'ID du module dans l'URL
-const params = new URLSearchParams(window.location.search);
-const moduleId = params.get("id");
+    /* ================= UTIL ================= */
+    const params = new URLSearchParams(window.location.search);
+    const moduleId = params.get("id");
 
-// Fonction pour charger le module
-async function chargerModule() {
-  const panel = document.getElementById("modulePanel");
+    /* ================= CHARGER MODULE ================= */
+    async function chargerModule() {
+        const panel = document.getElementById("modulePanel");
 
-  if (!moduleId) {
-    panel.innerHTML = "<p class='error'>❌ Module introuvable</p>";
-    return;
-  }
+        if (!moduleId) {
+            panel.innerHTML = "<p class='error'>❌ Module introuvable</p>";
+            return;
+        }
 
-  const { data, error } = await supabaseClient
-    .from("modules")
-    .select("*")
-    .eq("id", moduleId)
-    .single();
+        const { data, error } = await supabaseClient
+            .from("modules")
+            .select("*")
+            .eq("id", moduleId)
+            .single();
 
-  if (error || !data) {
-    console.error(error);
-    panel.innerHTML = "<p class='error'>❌ Erreur de chargement du module</p>";
-    return;
-  }
+        if (error || !data) {
+            console.error(error);
+            panel.innerHTML = "<p class='error'>❌ Erreur de chargement du module</p>";
+            return;
+        }
 
-  panel.innerHTML = `
-    <h2>${data.titre}</h2>
-    <p class="muted">${data.domaine} • ${data.duree}</p>
-    <p style="margin-top:12px">${data.description || data.resume}</p>
-    ${data.video_url ? `<div class="video-wrap"><iframe src="${data.video_url}" allowfullscreen></iframe></div>` : ""}
-    <a href="catalogue.html" class="btn" style="margin-top:20px">← Retour au catalogue</a>
-  `;
-}
+        panel.innerHTML = `
+            <h2>${data.titre}</h2>
+            <p class="muted">Domaine : ${data.domaine} • Durée : ${data.duree}</p>
+            <p>${data.description || data.resume}</p>
 
-// Bouton de déconnexion
-document.getElementById("logoutBtn").onclick = async () => {
-  await supabaseClient.auth.signOut();
-  window.location.href = "login.html";
-};
+            <div class="module-actions">
+                <label>
+                    <input type="checkbox" id="subscribeCheckbox">
+                    S'inscrire à ce module
+                </label>
+                <br>
 
-// Initialisation du chargement du module
-chargerModule();
+                <a href="catalogue.html" class="btn" style="margin-top:20px">
+                    ← Retour au catalogue
+                </a>
+            </div>
+        `;
+
+        // Logic to handle the subscription checkbox
+        document.getElementById("subscribeCheckbox").addEventListener("change", function() {
+            if (this.checked) {
+                // Logic to subscribe to the module
+                console.log("Module inscrit !");
+            } else {
+                console.log("Désinscrit du module.");
+            }
+        });
+    }
+
+    /* ================= LOGOUT ================= */
+    document.getElementById("logoutBtn").onclick = async () => {
+        await supabaseClient.auth.signOut();
+        window.location.href = "login.html";
+    };
+
+    /* ================= INIT ================= */
+    chargerModule();
 </script>
 
 <script src="./assets/js/app.js"></script>
