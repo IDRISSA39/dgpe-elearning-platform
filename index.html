@@ -2,61 +2,51 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Accueil – DGPE e-Learning</title>
-  <link rel="stylesheet" href="./style.css">
+  <title>Accueil – DGPE</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="navbar">
+
+<!-- NAVBAR -->
+<header class="navbar">
   <div class="wrap">
     <div class="logo-group">
-      <img src="./assets/DGPE_Logo.png" class="logo" alt="DGPE">
+      <img src="assets/img/dgpe-logo.png" class="logo">
       <span class="brand">e-Learning</span>
     </div>
-    <nav class="nav">
+    <nav class="nav hidden" id="nav-private">
       <a href="index.html">Accueil</a>
       <a href="catalogue.html">Catalogue</a>
-      <a href="module.html">Module</a>
+      <a href="modules.html">Modules</a>
       <a href="dashboard.html">Dashboard</a>
-      <a href="administration.html">Administration</a>
-      <a href="login.html" class="pill">Connexion</a>
+      <a href="#" id="logoutBtn" class="pill">Déconnexion</a>
     </nav>
-    <button class="burger" aria-label="Menu"><span></span></button>
   </div>
-</div>
+</header>
 
-<aside class="offcanvas" aria-hidden="true">
-  <div class="close" aria-label="Fermer">✕</div>
-  <img src="./assets/DGPE_Logo.png" class="logo" alt="DGPE">
-  <div class="menu">
-    <a href="index.html">Accueil</a>
-    <a href="catalogue.html">Catalogue</a>
-    <a href="module.html">Module</a>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="administration.html">Administration</a>
-    <a href="login.html">Connexion</a>
-  </div>
-</aside>
+<main class="page">
+  <h1>Bienvenue sur la plateforme DGPE</h1>
+</main>
 
+<!-- PROTECTION -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseClient = supabase.createClient(
+  "https://hrriedjmpwjfmfimqlmx.supabase.co",
+  "sb_publishable_1AnZMUSy3A4X8xIrKJOKQw_cOX40j9V"
+);
 
-<section class="hero stripes">
-  <div class="inner">
-    <h1>Plateforme DGPE e-Learning</h1>
-    <p>Développez vos compétences et accédez à vos modules de formation.</p>
-    <a class="btn" href="catalogue.html">Explorer le catalogue</a>
-  </div>
-</section>
+(async () => {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  if (!user) window.location.replace("login.html");
 
-<section class="section">
-  <div class="cards">
-    <div class="card"><h3>Formations certifiantes</h3><p>Parcours structurés avec évaluations, badges et attestations.</p></div>
-    <div class="card"><h3>Accessibilité RGAA</h3><p>Expérience inclusive et optimisée mobile.</p></div>
-    <div class="card"><h3>Suivi et reporting</h3><p>Tableaux de bord pour apprenants, formateurs et administrateurs.</p></div>
-  </div>
-</section>
+  document.getElementById("nav-private").classList.remove("hidden");
+  document.getElementById("logoutBtn").onclick = async () => {
+    await supabaseClient.auth.signOut();
+    window.location.replace("login.html");
+  };
+})();
+</script>
 
-
-<footer class="footer">© 2025 DGPE – Direction Générale du Portefeuille de l’État</footer>
-<script src="./app.js"></script>
 </body>
 </html>
