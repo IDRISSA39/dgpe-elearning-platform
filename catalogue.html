@@ -5,6 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Catalogue – DGPE</title>
 <link rel="stylesheet" href="./style.css">
+
+<!-- 🔐 AUTH GUARD -->
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient(
+  "https://yshmhrsartwjctbpevup.supabase.co",
+  "sb_publishable_Pf0iAehofCt4_VpHddUcWQ_rdxhfeEh"
+);
+
+const { data: { session } } = await supabase.auth.getSession();
+if (!session) {
+  window.location.href = "login.html";
+}
+</script>
 </head>
 
 <body>
@@ -21,10 +36,9 @@
     <nav class="nav">
       <a href="index.html">Accueil</a>
       <a href="catalogue.html" class="active">Catalogue</a>
-      <a href="module.html">Module</a>
       <a href="dashboard.html">Dashboard</a>
       <a href="administration.html">Administration</a>
-      <a href="login.html" class="pill">Déconnexion</a>
+      <button id="logoutBtn" class="pill">Déconnexion</button>
     </nav>
 
     <button class="burger" aria-label="Menu"><span></span></button>
@@ -34,6 +48,7 @@
 <!-- ================= CONTENU ================= -->
 <main class="page">
 
+  <!-- 🔍 RECHERCHE -->
   <section class="panel">
     <h2>Catalogue des formations</h2>
 
@@ -57,12 +72,10 @@
       <option>RSE</option>
     </select>
 
-    <button class="btn" type="button" id="btnSearch">
-      Rechercher
-    </button>
+    <button class="btn" id="btnSearch">Rechercher</button>
   </section>
 
-  <!-- ================= RÉSULTATS ================= -->
+  <!-- 📚 RÉSULTATS -->
   <section class="panel" style="margin-top:16px;">
     <h3>Résultats</h3>
     <div id="modulesGrid" class="modules-grid">
@@ -81,12 +94,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-/* ================= SUPABASE CONFIG ================= */
-const supabaseUrl = "https://yshmhrsartwjctbpevup.supabase.co";
-const supabaseKey = "sb_publishable_Pf0iAehofCt4_VpHddUcWQ_rdxhfeEh";
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = supabase.createClient(
+  "https://yshmhrsartwjctbpevup.supabase.co",
+  "sb_publishable_Pf0iAehofCt4_VpHddUcWQ_rdxhfeEh"
+);
 
-/* ================= CHARGEMENT DES MODULES ================= */
+/* ================= MODULES ================= */
 async function chargerModules() {
   const grid = document.getElementById("modulesGrid");
   const recherche = document.getElementById("searchInput").value.toLowerCase();
@@ -94,35 +107,29 @@ async function chargerModules() {
 
   grid.innerHTML = "<p class='muted'>Chargement…</p>";
 
-  let query = supabaseClient
-    .from("modules")
-    .select("*")
-    .order("id", { ascending: true });
+  let query = supabaseClient.from("modules").select("*").order("id");
 
-  if (domaine) {
-    query = query.eq("domaine", domaine);
-  }
+  if (domaine) query = query.eq("domaine", domaine);
 
   const { data, error } = await query;
 
   if (error) {
     console.error(error);
-    grid.innerHTML = "<p class='error'>❌ Erreur de chargement des modules</p>";
+    grid.innerHTML = "<p class='error'>❌ Erreur de chargement</p>";
     return;
   }
 
-  const modulesFiltres = data.filter(m =>
+  const resultats = data.filter(m =>
     m.titre.toLowerCase().includes(recherche)
   );
 
-  if (modulesFiltres.length === 0) {
+  if (!resultats.length) {
     grid.innerHTML = "<p class='muted'>Aucun module trouvé</p>";
     return;
   }
 
   grid.innerHTML = "";
-
-  modulesFiltres.forEach(m => {
+  resultats.forEach(m => {
     grid.innerHTML += `
       <a href="module.html?id=${m.id}" class="card">
         <h3>${m.titre}</h3>
@@ -134,11 +141,17 @@ async function chargerModules() {
 }
 
 /* ================= EVENTS ================= */
-document.getElementById("btnSearch").addEventListener("click", chargerModules);
-document.getElementById("searchInput").addEventListener("input", chargerModules);
-document.getElementById("filterDomaine").addEventListener("change", chargerModules);
+document.getElementById("btnSearch").onclick = chargerModules;
+document.getElementById("searchInput").oninput = chargerModules;
+document.getElementById("filterDomaine").onchange = chargerModules;
 
-/* ================= AUTO LOAD ================= */
+/* ================= LOGOUT ================= */
+document.getElementById("logoutBtn").onclick = async () => {
+  await supabaseClient.auth.signOut();
+  window.location.href = "login.html";
+};
+
+/* ================= INIT ================= */
 chargerModules();
 </script>
 
