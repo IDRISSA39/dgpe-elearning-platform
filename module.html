@@ -63,18 +63,18 @@
 </footer>
 
 <script>
-/* ================= SUPABASE ================= */
-const supabaseUrl =https://yshmhrsartwjctbpevup.supabase.co;
-const supabaseKey = sb_publishable_Pf0iAehofCt4_VpHddUcWQ_rdxhfeEh;
+// ================= SUPABASE =================
+const supabaseUrl = "https://yshmhrsartwjctbpevup.supabase.co";
+const supabaseKey = "sb_publishable_Pf0iAehofCt4_VpHddUcWQ_rdxhfeEh";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-/* ================= ID MODULE ================= */
+// ================= ID MODULE =================
 const params = new URLSearchParams(window.location.search);
 const moduleId = params.get("id");
 
 let moduleActuel = null;
 
-/* ================= CHARGEMENT MODULE ================= */
+// ================= CHARGEMENT MODULE =================
 async function chargerModule() {
   if (!moduleId) {
     document.getElementById("moduleCard").innerHTML = "❌ Aucun module sélectionné";
@@ -104,7 +104,7 @@ async function chargerModule() {
 
 chargerModule();
 
-/* ================= INSCRIPTION SÉCURISÉE ================= */
+// ================= INSCRIPTION SÉCURISÉE =================
 async function inscrireModule() {
   const { data: userData } = await supabase.auth.getUser();
 
